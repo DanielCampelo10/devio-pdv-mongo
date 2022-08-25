@@ -13,7 +13,7 @@ export default class PedidoUseCase {
   async criar(nome: string) {
     const novoPedido = await this.repository.create({
       nome_cliente: nome,
-      status: "pendente",
+      status: "carrinho",
       valor_total: 0,
     });
     return novoPedido;
