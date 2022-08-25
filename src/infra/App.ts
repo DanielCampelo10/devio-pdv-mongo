@@ -1,7 +1,7 @@
 import Express, { Application } from "express";
 import { mongoDBConection } from "../database";
 import BaseRoutes from "./BaseRoutes/index";
-
+import cors from "cors";
 
 type SetupOptions = {
   isTest?: boolean;
@@ -16,7 +16,8 @@ export default class App {
   }
   
   async setup(options: SetupOptions): Promise<void> {
-    // this.instance.use(Express.static("uploads"));
+    this.instance.use(cors());
+    this.instance.use(Express.static("uploads"));
     await mongoDBConection.createConection();
     const selectedPort = options.port ? options.port : this.defaultPort;
     this.instance.use(Express.json());

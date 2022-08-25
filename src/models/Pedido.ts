@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IItem } from "./Itens";
+import { IItem } from "./Item";
 
 export interface IPedido {
   nome_cliente: string;

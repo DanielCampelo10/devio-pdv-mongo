@@ -7,12 +7,12 @@ export default class PedidoRepository implements IRepository {
   constructor(pedidoModel: Model<IPedido>) {
     this.pedidoModel = pedidoModel;
   }
-  async create(payload: {}) {
+  async create(payload: { nome: string }) {
     return this.pedidoModel.create(payload);
   }
 
-  async find() {
-    return this.pedidoModel.find();
+  async find(payload: any) {
+    return this.pedidoModel.find(payload);
   }
 
   async findById(id: any) {

@@ -1,6 +1,4 @@
 import { IProduto } from "../../../models/Produto";
-import Produto from "../../../models/Produto";
-import { ObjectId } from "mongoose";
 import IRepository from "../../../repositories/IRepository";
 
 type PayloadCadastroProduto = IProduto;

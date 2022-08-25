@@ -1,11 +1,11 @@
 import { Router } from "express";
 
-import produtoRoutes from "../../modules/Produto/routes"
-//import pedidoRoutes from "../../modules/Pedido/routes"
+import routesProduto from "../../modules/Produto/routes"
+import routesPedido from "../../modules/Pedido/routes"
 
 const routes = Router();
 
-routes.use(produtoRoutes);
-//routes.use(pedidoRoutes);
+// routes.use(routesProduto);
+routes.use(routesPedido);
 
 export default routes;
