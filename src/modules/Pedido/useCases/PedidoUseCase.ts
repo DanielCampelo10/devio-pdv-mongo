@@ -69,6 +69,32 @@ export default class PedidoUseCase {
       valor_total: valorAtual - valorItemRemovido,
     });
 
-    return Item.findByIdAndDelete(id_item);
+    return await Item.findByIdAndDelete(id_item);
+  }
+
+  async editarItem(id_pedido: string, id_item: string, quantidade: number) {
+    const itemEditado = await Item.findById({ _id: id_item });
+    let alteracaoValor = 0;
+    if (itemEditado) {
+      alteracaoValor = (quantidade - itemEditado?.quantidade) * itemEditado?.valor_vendido;
+    }
+
+    const pedido = await Pedido.findById({ _id: id_pedido });
+    let valorAtual = 0;
+    if (pedido) {
+      valorAtual = pedido.valor_total;
+    }
+
+    await Pedido.findByIdAndUpdate(id_pedido, {
+      valor_total: valorAtual + alteracaoValor,
+    });
+
+    await Item.findByIdAndUpdate(id_item, {
+      quantidade: quantidade,
+    });
+
+    const itemAtualizado = Item.findById(id_item)
+
+    return itemAtualizado;
   }
 }

@@ -13,7 +13,7 @@ export default class ProdutoController {
       try {
         const { nome } = req.body;
         const novoPedido = await this.useCase.criar(nome);
-        return res.status(200).json(novoPedido);
+        return res.status(201).json(novoPedido);
       } catch (error) {
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
@@ -42,6 +42,23 @@ export default class ProdutoController {
           id_produto,
           quantidade
         );
+        return res.status(201).json(novoItem);
+      } catch (error) {
+        return res.status(500).json("Ocorreu um erro, chame o gerente!");
+      }
+    };
+  }
+
+  editarItem() {
+    return async (req: Request, res: Response) => {
+      try {
+        const { id_pedido, id_item } = req.params;
+        const { quantidade } = req.body;
+        const novoItem = await this.useCase.editarItem(
+          id_pedido,
+          id_item,
+          quantidade
+        );
         return res.status(200).json(novoItem);
       } catch (error) {
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
@@ -53,11 +70,11 @@ export default class ProdutoController {
     return async (req: Request, res: Response) => {
       try {
         const { id_pedido, id_item } = req.params;
-        const novoItem = await this.useCase.removerItem(
+        await this.useCase.removerItem(
           id_pedido,
           id_item
         );
-        return res.status(200).json(novoItem);
+        return res.status(204).json('Item removido com sucesso! Confira seu carrinho');
       } catch (error) {
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
