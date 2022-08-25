@@ -50,4 +50,25 @@ export default class PedidoUseCase {
     });
     return novoItem;
   }
+
+  async removerItem(id_pedido: string, id_item: string) {
+    const itemRemovido = await Item.findById({ _id: id_item });
+    let valorItemRemovido = 0;
+    if (itemRemovido) {
+      valorItemRemovido =
+        itemRemovido?.quantidade * itemRemovido?.valor_vendido;
+    }
+    const pedido = await Pedido.findById({ _id: id_pedido });
+    let valorAtual = 0;
+
+    if (pedido) {
+      valorAtual = pedido.valor_total;
+    }
+
+    await Pedido.findByIdAndUpdate(id_pedido, {
+      valor_total: valorAtual - valorItemRemovido,
+    });
+
+    return Item.findByIdAndDelete(id_item);
+  }
 }

@@ -48,4 +48,19 @@ export default class ProdutoController {
       }
     };
   }
+
+  removerItem() {
+    return async (req: Request, res: Response) => {
+      try {
+        const { id_pedido, id_item } = req.params;
+        const novoItem = await this.useCase.removerItem(
+          id_pedido,
+          id_item
+        );
+        return res.status(200).json(novoItem);
+      } catch (error) {
+        return res.status(500).json("Ocorreu um erro, chame o gerente!");
+      }
+    };
+  }
 }
