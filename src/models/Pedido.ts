@@ -26,12 +26,15 @@ const pedidoSchema = new Schema<IPedido>(
     },
     valor_total: {
       type: Schema.Types.Number,
+      default: 0,
     },
     valor_recebido: {
       type: Schema.Types.Number,
+      default: 0,
     },
     troco: {
       type: Schema.Types.Number,
+      default: 0,
     },
   },
   { timestamps: true }
