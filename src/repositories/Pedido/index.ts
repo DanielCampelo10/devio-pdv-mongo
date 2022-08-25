@@ -7,7 +7,7 @@ export default class PedidoRepository implements IRepository {
   constructor(pedidoModel: Model<IPedido>) {
     this.pedidoModel = pedidoModel;
   }
-  async create(payload: { nome: string }) {
+  async create(payload: { nome_cliente: string, status: string }) {
     return this.pedidoModel.create(payload);
   }
 
@@ -20,7 +20,7 @@ export default class PedidoRepository implements IRepository {
   }
 
   async update(id: any, payload: {}) {
-    return await this.pedidoModel.findByIdAndUpdate({ _id: id }, payload);
+    return await this.pedidoModel.findByIdAndUpdate({_id: id, payload: payload});
   }
 
   async delete(id: any) {

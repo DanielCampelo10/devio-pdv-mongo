@@ -5,7 +5,7 @@ import routesPedido from "../../modules/Pedido/routes"
 
 const routes = Router();
 
-// routes.use(routesProduto);
+routes.use(routesProduto);
 routes.use(routesPedido);
 
 export default routes;
