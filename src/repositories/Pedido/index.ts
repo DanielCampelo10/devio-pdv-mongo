@@ -27,5 +27,7 @@ export default class PedidoRepository implements IRepository {
     return await this.pedidoModel.findByIdAndDelete({ _id: id });
   }
 
-  async count(payload: any) {}
+  async count(payload: any) {
+    return await this.pedidoModel.count(payload);
+  }
 }

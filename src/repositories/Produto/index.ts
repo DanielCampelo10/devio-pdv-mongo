@@ -18,8 +18,8 @@ export default class ProdutoRepository implements IRepository {
     return this.produtoModel.create(payload);
   }
 
-  async find() {
-    return this.produtoModel.find();
+  async find(payload: any) {
+    return this.produtoModel.find(payload);
   }
 
   async findById(id: any) {
@@ -42,5 +42,7 @@ export default class ProdutoRepository implements IRepository {
     return await this.produtoModel.findByIdAndDelete({ _id: id });
   }
 
-  async count(payload: any) {}
+  async count(payload: any) {
+    return await this.produtoModel.count(payload);
+  }
 }
