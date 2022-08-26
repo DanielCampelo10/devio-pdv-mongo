@@ -18,7 +18,7 @@ export default class ProdutoController {
           ...req.body,
         });
         
-        return res.status(200).json(novoProduto);
+        return res.status(204).json(novoProduto);
       } catch (error) {
         if (error instanceof ApiError) {
           return res.status(error.statusCode).json(error.message);
@@ -45,7 +45,7 @@ export default class ProdutoController {
   filtrarProdutos(){
     return async (req: Request, res: Response) => {
       try {
-        const { texto } = req.body;
+        const { texto } = req.params;
 
         const produtos = await this.useCase.filtrarProdutos(texto);
         return res.status(200).json(produtos);
@@ -57,8 +57,4 @@ export default class ProdutoController {
       }
     }
   }
-    
-  
-  
 };
-
