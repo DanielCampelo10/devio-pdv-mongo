@@ -38,7 +38,7 @@ export default class PedidoUseCase {
   ) {
     const produtoAdicionado = await Produto.findById({ _id: id_produto });
     const pedido = await Pedido.findById({ _id: id_pedido });
-    
+
     let itemExistente: IItem[] | ObjectId[] = [];
     let valorAtual = 0;
 
@@ -99,20 +99,20 @@ export default class PedidoUseCase {
       valorItemRemovido =
         itemRemovido?.quantidade * itemRemovido?.valor_vendido;
     }
-    
+
     await Pedido.findByIdAndUpdate(id_pedido, {
       valor_total: valorAtual - valorItemRemovido,
     });
-    return
+    return;
   }
 
   async editarItem(id_pedido: string, id_item: string, quantidade: number) {
     const itemEditado = await Item.findById({ _id: id_item });
     const pedido = await Pedido.findById({ _id: id_pedido });
-    
+
     let alteracaoValor = 0;
     let valorAtual = 0;
-    
+
     if (pedido) {
       if (pedido.status != "carrinho") {
         throw new ApiError(
@@ -126,12 +126,12 @@ export default class PedidoUseCase {
       if (quantidade <= 0) {
         throw new ApiError("A quantidade precisa ser maior que 0", 400);
       }
-      
+
       valorAtual = pedido.valor_total;
-    }else {
+    } else {
       throw new ApiError("pedido não encontrado", 404);
     }
-    
+
     if (itemEditado) {
       alteracaoValor =
         (quantidade - itemEditado?.quantidade) * itemEditado?.valor_vendido;
@@ -154,6 +154,12 @@ export default class PedidoUseCase {
     if (pedido) {
       if (pagamento < pedido.valor_total) {
         throw new ApiError("Valor insuficiente para pagar o pedido", 400);
+      }
+      if (pedido.status != "carrinho") {
+        throw new ApiError(
+          "Seu pedido já foi enviado pra cozinha!",
+          401
+        );
       }
       await Pedido.findByIdAndUpdate(id_pedido, {
         valor_recebido: pagamento,
