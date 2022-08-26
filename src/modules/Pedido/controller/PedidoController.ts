@@ -92,4 +92,16 @@ export default class ProdutoController {
       }
     };
   }
+
+  filtrarStatus() {
+    return async (req: Request, res: Response) => {
+      try {
+        const { status } = req.params;
+        const pedidos = await this.useCase.filtrarStatus(status);
+        return res.status(200).json(pedidos);
+      } catch (error) {
+        return res.status(500).json("Ocorreu um erro, chame o gerente!");
+      }
+    };
+  }
 }

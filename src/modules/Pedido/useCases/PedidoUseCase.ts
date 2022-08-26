@@ -136,4 +136,14 @@ export default class PedidoUseCase {
 
     return pedidoAtualizado?.populate("itens");
   }
+
+  async filtrarStatus (status: string) {
+    if  (status != "pendente" && status != "em preparo" && status != "concluido"){
+      throw new Error  ("status de pedido invalido")
+    }
+    
+    const pedidos = await Pedido.find({status: status})
+
+    return pedidos
+  }
 }
