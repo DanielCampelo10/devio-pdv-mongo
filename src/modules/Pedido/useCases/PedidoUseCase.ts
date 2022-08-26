@@ -3,6 +3,7 @@ import IRepository from "../../../repositories/IRepository";
 import Pedido, { IPedido } from "../../../models/Pedido";
 import Produto from "../../../models/Produto";
 import Item, { IItem } from "../../../models/Item";
+import ApiError from "../../../infra/errors";
 // import printer from "../../../infra/config/printer";
 
 export default class PedidoUseCase {
@@ -12,6 +13,9 @@ export default class PedidoUseCase {
   }
 
   async criar(nome: string) {
+    if (nome == "" || !nome) {
+      throw new ApiError("preencha seu nome", 400);
+    }
     const novoPedido = await this.repository.create({
       nome_cliente: nome,
       status: "carrinho",
@@ -21,6 +25,9 @@ export default class PedidoUseCase {
 
   async exibir(id: string) {
     const pedido = await this.repository.findById({ _id: id });
+    if (!pedido) {
+      throw new ApiError("pedido não encontrado", 404);
+    }
     return pedido.populate("itens");
   }
 
@@ -30,19 +37,35 @@ export default class PedidoUseCase {
     quantidade: number
   ) {
     const produtoAdicionado = await Produto.findById({ _id: id_produto });
+    const pedido = await Pedido.findById({ _id: id_pedido });
+    
+    let itemExistente: IItem[] | ObjectId[] = [];
+    let valorAtual = 0;
+
+    if (pedido) {
+      if (pedido.status != "carrinho") {
+        throw new ApiError(
+          `Não é possível adicionar itens em um pedido no status ${pedido.status}`,
+          401
+        );
+      }
+      if (!produtoAdicionado) {
+        throw new ApiError("produto não encontrado", 404);
+      }
+      if (quantidade <= 0) {
+        throw new ApiError("A quantidade precisa ser maior que 0", 400);
+      }
+      itemExistente = pedido.itens;
+      valorAtual = pedido.valor_total;
+    } else {
+      throw new ApiError("pedido não encontrado", 404);
+    }
+
     const novoItem = await Item.create({
       produto: produtoAdicionado,
       quantidade: quantidade,
       valor_vendido: produtoAdicionado?.preco,
     });
-
-    const pedido = await Pedido.findById({ _id: id_pedido });
-    let itemExistente: IItem[] | ObjectId[] = [];
-    let valorAtual = 0;
-    if (pedido) {
-      itemExistente = pedido.itens;
-      valorAtual = pedido.valor_total;
-    }
 
     await Pedido.findByIdAndUpdate(id_pedido, {
       itens: [...itemExistente, novoItem],
@@ -53,49 +76,75 @@ export default class PedidoUseCase {
 
   async removerItem(id_pedido: string, id_item: string) {
     const itemRemovido = await Item.findById({ _id: id_item });
+    const pedido = await Pedido.findById({ _id: id_pedido });
+
     let valorItemRemovido = 0;
+    let valorAtual = 0;
+
+    if (pedido) {
+      if (pedido.status != "carrinho") {
+        throw new ApiError(
+          `Não é possível adicionar itens em um pedido no status ${pedido.status}`,
+          401
+        );
+      }
+      if (!itemRemovido) {
+        throw new ApiError("item não encontrado", 404);
+      }
+      valorAtual = pedido.valor_total;
+    } else {
+      throw new ApiError("pedido não encontrado", 404);
+    }
     if (itemRemovido) {
       valorItemRemovido =
         itemRemovido?.quantidade * itemRemovido?.valor_vendido;
     }
-    const pedido = await Pedido.findById({ _id: id_pedido });
-    let valorAtual = 0;
-
-    if (pedido) {
-      valorAtual = pedido.valor_total;
-    }
-
+    
     await Pedido.findByIdAndUpdate(id_pedido, {
       valor_total: valorAtual - valorItemRemovido,
     });
-
-    return await Item.findByIdAndDelete(id_item);
+    return
   }
 
   async editarItem(id_pedido: string, id_item: string, quantidade: number) {
     const itemEditado = await Item.findById({ _id: id_item });
+    const pedido = await Pedido.findById({ _id: id_pedido });
+    
     let alteracaoValor = 0;
+    let valorAtual = 0;
+    
+    if (pedido) {
+      if (pedido.status != "carrinho") {
+        throw new ApiError(
+          `Não é possível adicionar itens em um pedido no status ${pedido.status}`,
+          401
+        );
+      }
+      if (!itemEditado) {
+        throw new ApiError("item não encontrado", 404);
+      }
+      if (quantidade <= 0) {
+        throw new ApiError("A quantidade precisa ser maior que 0", 400);
+      }
+      
+      valorAtual = pedido.valor_total;
+    }else {
+      throw new ApiError("pedido não encontrado", 404);
+    }
+    
     if (itemEditado) {
       alteracaoValor =
         (quantidade - itemEditado?.quantidade) * itemEditado?.valor_vendido;
     }
 
-    const pedido = await Pedido.findById({ _id: id_pedido });
-    let valorAtual = 0;
-    if (pedido) {
-      valorAtual = pedido.valor_total;
-    }
-
     await Pedido.findByIdAndUpdate(id_pedido, {
       valor_total: valorAtual + alteracaoValor,
     });
-
     await Item.findByIdAndUpdate(id_item, {
       quantidade: quantidade,
     });
 
     const itemAtualizado = Item.findById(id_item);
-
     return itemAtualizado;
   }
 
@@ -104,7 +153,7 @@ export default class PedidoUseCase {
 
     if (pedido) {
       if (pagamento < pedido.valor_total) {
-        throw new Error("Pagamento insuficiente");
+        throw new ApiError("Valor insuficiente para pagar o pedido", 400);
       }
       await Pedido.findByIdAndUpdate(id_pedido, {
         valor_recebido: pagamento,
@@ -112,7 +161,7 @@ export default class PedidoUseCase {
         status: "pendente",
       });
     } else {
-      throw new Error("Pedido não encontrado");
+      throw new ApiError("Pedido não encontrado", 404);
     }
     const pedidoAtualizado = await Pedido.findById({ _id: id_pedido });
 
@@ -139,24 +188,26 @@ export default class PedidoUseCase {
 
   async filtrarStatus(status: string) {
     if (status != "pendente" && status != "preparo" && status != "concluido") {
-      throw new Error("status de pedido invalido");
+      throw new ApiError("status de pedido invalido", 400);
     }
 
     const pedidos = await Pedido.find({ status: status });
-
     return pedidos;
   }
 
   async alterarStatus(id_pedido: string, status: string) {
     const pedido = await Pedido.findById(id_pedido);
     if (!pedido) {
-      throw new Error("Id não encontrado"); //404
+      throw new ApiError("pedido não encontrado", 404);
     }
     if (pedido.status == "concluido") {
-      throw new Error("Pedido concluido! O status não pode ser alterado."); //401
+      throw new ApiError(
+        "Pedido concluido! O status não pode ser alterado.",
+        401
+      );
     }
     if (status != "pendente" && status != "preparo" && status != "concluido") {
-      throw new Error("status de pedido invalido"); //400
+      throw new ApiError("status de pedido invalido", 400);
     }
     await Pedido.findByIdAndUpdate(id_pedido, {
       status: status,

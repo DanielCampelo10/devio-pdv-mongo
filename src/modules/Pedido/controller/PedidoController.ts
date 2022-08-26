@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import ApiError from "../../../infra/errors";
 import PedidoUseCase from "../useCases/PedidoUseCase";
 
 export default class ProdutoController {
@@ -15,6 +16,9 @@ export default class ProdutoController {
         const novoPedido = await this.useCase.criar(nome);
         return res.status(201).json(novoPedido);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
@@ -27,6 +31,9 @@ export default class ProdutoController {
         const pedido = await this.useCase.exibir(id);
         return res.status(200).json(pedido);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
@@ -44,6 +51,9 @@ export default class ProdutoController {
         );
         return res.status(201).json(novoItem);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
@@ -61,6 +71,9 @@ export default class ProdutoController {
         );
         return res.status(200).json(novoItem);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
@@ -75,6 +88,9 @@ export default class ProdutoController {
           .status(204)
           .json("Item removido com sucesso! Confira seu carrinho");
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
@@ -88,6 +104,9 @@ export default class ProdutoController {
         const pedido = await this.useCase.finalizarPedido(id_pedido, pagamento);
         return res.status(200).json(pedido);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
@@ -100,6 +119,9 @@ export default class ProdutoController {
         const pedidos = await this.useCase.filtrarStatus(status);
         return res.status(200).json(pedidos);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
@@ -112,6 +134,9 @@ export default class ProdutoController {
         const pedido = await this.useCase.alterarStatus(id_pedido, status);
         return res.status(200).json(pedido);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     };
