@@ -1,3 +1,4 @@
+import ApiError from "../../../infra/errors";
 import { IProduto } from "../../../models/Produto";
 import IRepository from "../../../repositories/IRepository";
 
@@ -25,29 +26,33 @@ export default class ProdutoUseCase {
   }
 
   async filtrarProdutos(texto: string | number) {
-
-    
-    const categoriaCount = await this.repository.count({ categoria: {$regex: texto, $options: 'i'}});
+    const categoriaCount = await this.repository.count({
+      categoria: { $regex: texto, $options: "i" },
+    });
     if (categoriaCount) {
-      const produtos = await this.repository.find({ categoria: {$regex: texto, $options: 'i'}});
+      const produtos = await this.repository.find({
+        categoria: { $regex: texto, $options: "i" },
+      });
       return produtos;
     }
 
-    const nomeCount = await this.repository.count({nome: {$regex: texto, $options: 'i'}});
-    console.log(nomeCount);
-    
+    const nomeCount = await this.repository.count({
+      nome: { $regex: texto, $options: "i" },
+    });
+
     if (nomeCount) {
-      const produtos = await this.repository.find({nome: {$regex: texto, $options: 'i'}});
+      const produtos = await this.repository.find({
+        nome: { $regex: texto, $options: "i" },
+      });
       return produtos;
     }
-    
+
     const codigoCount = await this.repository.count({ codigo: texto });
-    console.log(codigoCount);
     if (codigoCount) {
       const produtos = await this.repository.find({ codigo: texto });
       return produtos;
     }
-    
-    throw new Error();
+
+    throw new ApiError("produto não encontrado", 404);
   }
 }

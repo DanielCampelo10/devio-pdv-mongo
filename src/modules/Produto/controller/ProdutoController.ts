@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import ApiError from "../../../infra/errors";
 import ProdutoUseCase from "../useCases/ProdutoUseCase";
 
 export default class ProdutoController {
@@ -19,6 +20,9 @@ export default class ProdutoController {
         
         return res.status(200).json(novoProduto);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     }
@@ -30,6 +34,9 @@ export default class ProdutoController {
         const maisVendidos = await this.useCase.listarMaisVendidos();
         return res.status(200).json(maisVendidos);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     }
@@ -43,6 +50,9 @@ export default class ProdutoController {
         const produtos = await this.useCase.filtrarProdutos(texto);
         return res.status(200).json(produtos);
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json(error.message);
+        }
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
     }
