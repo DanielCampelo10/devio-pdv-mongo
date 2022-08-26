@@ -1,0 +1,520 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sistema de PDV Devio",
+    "descripition": "Uma API desenvolvida para agilizar o processo de comanda de restaurantes",
+    "contact": {
+      "email": "danielcampelo10@hotmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://api-devio-pdv.herokuapp.com",
+      "descripition": "Servidor em produção"
+    },
+    {
+      "url": "http://localhost:4000",
+      "descripition": "Servidor local"
+    }
+  ],
+  "paths": {
+    "/produtos": {
+      "post": {
+        "sumary": "Cadastro de produto",
+        "description": "Rota responsável por cadastrar novos produtos",
+        "tags": ["Produtos"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#components/schemas/Produto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Produto cadastrado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Produto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Produto já cadastrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/produtos/maisvendidos": {
+      "get": {
+        "sumary": "10 Produtos mais vendidos",
+        "description": "Rota responsável por listar os 10 produtos mais vendidos pelo estabelecimento",
+        "tags": ["Produtos"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Produto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/produtos/buscar/{texto}": {
+      "get": {
+        "sumary": "Exibe produtos de acordo com parametros fornecidos",
+        "description": "Rota responsável por encontrar produtos de acordo com os parâmetros fornecidos pelo cliente. É possível buscar pelo nome ou categoria parcialmente digitados ou pelo código do produto.",
+        "tags": ["Produtos"],
+        "parameters": [
+          {
+            "name": "texto",
+            "in": "path",
+            "description": "Busca produtos por código,  nome ou cartegoria. Exemplos: 1001, frango e refrigerante",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Produto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Produto não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos": {
+      "post": {
+        "sumary": "Cadastro novo pedido",
+        "description": "O cliente fornece seu nome para que seja criado o seu pedido",
+        "tags": ["Pedidos"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "example": "Ariosvaldo"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pedido criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Informe seu nome"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos/{id_pedido}": {
+      "get": {
+        "sumary": "Exibe os detalhes de um pedido.",
+        "description": "Rota responsável por exibir os detalhes de um pedido.",
+        "tags": ["Pedidos", "Cozinha"],
+        "parameters": [
+          {
+            "name": "id_pedido",
+            "in": "path",
+            "description": "Informe o ID do pedido",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pedido não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos/{id_pedido}/add/produto/{id_produto}": {
+      "post": {
+        "sumary": "Adiciona item ao carrinho.",
+        "description": "Rota responsável por adicionar produtos ao carrinho.",
+        "tags": ["Pedidos"],
+        "parameters": [
+          {
+            "name": "id_pedido",
+            "in": "path",
+            "description": "Informe o ID do pedido",
+            "required": true
+          },
+          {
+            "name": "id_produto",
+            "in": "path",
+            "description": "Informe o ID do produto",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quantidade": {
+                    "type": "number",
+                    "example": 3,
+                    "required": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Pedido ou produto não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos/{id_pedido}/edit/item/{id_item}": {
+      "put": {
+        "sumary": "Edita quantidade de itens no carrinho.",
+        "description": "Rota responsável por editar itens no carrinho.",
+        "tags": ["Pedidos"],
+        "parameters": [
+          {
+            "name": "id_pedido",
+            "in": "path",
+            "description": "Informe o ID do pedido",
+            "required": true
+          },
+          {
+            "name": "id_item",
+            "in": "path",
+            "description": "Informe o ID do item",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "quantidade": {
+                    "type": "number",
+                    "example": 3,
+                    "required": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Pedido ou produto não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos/{id_pedido}/remove/item/{id_item}": {
+      "delete": {
+        "sumary": "Edita quantidade de itens no carrinho.",
+        "description": "Rota responsável por editar itens no carrinho.",
+        "tags": ["Pedidos"],
+        "parameters": [
+          {
+            "name": "id_pedido",
+            "in": "path",
+            "description": "Informe o ID do pedido",
+            "required": true
+          },
+          {
+            "name": "id_item",
+            "in": "path",
+            "description": "Informe o ID do item",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item deletado com sucesso"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Pedido ou produto não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos/finalizar/{id_pedido}": {
+      "put": {
+        "sumary": "Finaliza o pedido.",
+        "description": "Rota responsável por finalizar um pedido.",
+        "tags": ["Pedidos"],
+        "parameters": [
+          {
+            "name": "id_pedido",
+            "in": "path",
+            "description": "Informe o ID do pedido",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pagamento": {
+                    "type": "number",
+                    "example": 50,
+                    "required": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pedido não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos/{id_pedido}/status/{status}": {
+      "put": {
+        "sumary": "Permite a cozinha alterar o status dos pedidos.",
+        "description": "Rota responsável por alterar o status de um pedido.",
+        "tags": ["Cozinha"],
+        "parameters": [
+          {
+            "name": "id_pedido",
+            "in": "path",
+            "description": "Informe o ID do pedido",
+            "required": true
+          },
+          {
+            "name": "status",
+            "in": "path",
+            "description": "Informe o ID do item",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status alterado com sucesso"
+          },
+          "401": {
+            "description": "Não autorizado"
+          },
+          "404": {
+            "description": "Pedido não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pedidos/status/{status}": {
+      "get": {
+        "sumary": "Exibe todos os pedidos em um determinado status",
+        "description": "Rota responsável por encontrar produtos de em um determinado status.",
+        "tags": ["Cozinha"],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "path",
+            "description": "Informe um status. Os valores aceitos são: pendente, preparo e concluido",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#components/schemas/Pedido"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Produto não encontrado"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+
+  "components": {
+    "schemas": {
+      "Produto": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "number",
+            "example": 1106
+          },
+          "nome": {
+            "type": "string",
+            "example": "Pastel de Pizza"
+          },
+          "categoria": {
+            "type": "string",
+            "example": "Pastel"
+          },
+          "imagem": {
+            "type": "string",
+            "example": "https://link.com"
+          },
+          "preco": {
+            "type": "number",
+            "example": 7.5
+          },
+          "quant_vendidos": {
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "Pedido": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "63093575e1ce8d92ccfee96c"
+          },
+          "nome_cliente": {
+            "type": "string",
+            "example": "Ariosvaldo"
+          },
+          "itens": {
+            "type": "string",
+            "example": []
+          },
+          "status": {
+            "type": "string",
+            "example": "carrinho"
+          },
+          "valor_total": {
+            "type": "number",
+            "example": 0
+          },
+          "valor_recebido": {
+            "type": "number",
+            "example": 0
+          },
+          "troco": {
+            "type": "number",
+            "example": 0
+          }
+        }
+      }
+    }
+  }
+}

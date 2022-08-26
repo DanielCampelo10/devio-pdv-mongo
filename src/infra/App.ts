@@ -16,6 +16,7 @@ export default class App {
   }
   
   async setup(options: SetupOptions): Promise<void> {
+
     this.instance.use(cors());
     this.instance.use(Express.static("uploads"));
     await mongoDBConection.createConection();
