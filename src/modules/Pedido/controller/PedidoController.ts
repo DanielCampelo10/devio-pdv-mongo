@@ -70,11 +70,23 @@ export default class ProdutoController {
     return async (req: Request, res: Response) => {
       try {
         const { id_pedido, id_item } = req.params;
-        await this.useCase.removerItem(
-          id_pedido,
-          id_item
-        );
-        return res.status(204).json('Item removido com sucesso! Confira seu carrinho');
+        await this.useCase.removerItem(id_pedido, id_item);
+        return res
+          .status(204)
+          .json("Item removido com sucesso! Confira seu carrinho");
+      } catch (error) {
+        return res.status(500).json("Ocorreu um erro, chame o gerente!");
+      }
+    };
+  }
+
+  finalizarPedido() {
+    return async (req: Request, res: Response) => {
+      try {
+        const { id_pedido } = req.params;
+        const { pagamento } = req.body;
+        const pedido = await this.useCase.finalizarPedido(id_pedido, pagamento);
+        return res.status(200).json(pedido);
       } catch (error) {
         return res.status(500).json("Ocorreu um erro, chame o gerente!");
       }
