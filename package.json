@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "build": "tsc",
     "start": "node -r dotenv/config dist",
     "dev": "ts-node-dev --respawn --ignore-watch node_modules -r dotenv/config src/index.ts dotenv_config_path=.env.dev --files"
   },
