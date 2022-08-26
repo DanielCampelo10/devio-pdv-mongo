@@ -104,4 +104,16 @@ export default class ProdutoController {
       }
     };
   }
+
+  alterarStatus() {
+    return async (req: Request, res: Response) => {
+      try {
+        const { id_pedido, status } = req.params;
+        const pedido = await this.useCase.alterarStatus(id_pedido, status);
+        return res.status(200).json(pedido);
+      } catch (error) {
+        return res.status(500).json("Ocorreu um erro, chame o gerente!");
+      }
+    };
+  }
 }

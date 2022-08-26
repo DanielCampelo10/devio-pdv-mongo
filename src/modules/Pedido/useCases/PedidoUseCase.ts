@@ -137,13 +137,31 @@ export default class PedidoUseCase {
     return pedidoAtualizado?.populate("itens");
   }
 
-  async filtrarStatus (status: string) {
-    if  (status != "pendente" && status != "em preparo" && status != "concluido"){
-      throw new Error  ("status de pedido invalido")
+  async filtrarStatus(status: string) {
+    if (status != "pendente" && status != "preparo" && status != "concluido") {
+      throw new Error("status de pedido invalido");
     }
-    
-    const pedidos = await Pedido.find({status: status})
 
-    return pedidos
+    const pedidos = await Pedido.find({ status: status });
+
+    return pedidos;
+  }
+
+  async alterarStatus(id_pedido: string, status: string) {
+    const pedido = await Pedido.findById(id_pedido);
+    if (!pedido) {
+      throw new Error("Id não encontrado"); //404
+    }
+    if (pedido.status == "concluido") {
+      throw new Error("Pedido concluido! O status não pode ser alterado."); //401
+    }
+    if (status != "pendente" && status != "preparo" && status != "concluido") {
+      throw new Error("status de pedido invalido"); //400
+    }
+    await Pedido.findByIdAndUpdate(id_pedido, {
+      status: status,
+    });
+    const pedidoAtualizado = await Pedido.findById(id_pedido);
+    return pedidoAtualizado;
   }
 }
